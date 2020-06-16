@@ -253,7 +253,7 @@ def train(hyp):
 
             # Multi-Scale
             if opt.multi_scale:
-                if ni / accumulate % 1 == 0:  #  adjust img_size (67% - 150%) every 1 batch
+                if ni / accumulate % 1 == 0:  #  adjust img_size (67% - 150%) every 1 batch
                     img_size = random.randrange(grid_min, grid_max + 1) * gs
                 sf = img_size / max(imgs.shape[2:])  # scale factor
                 if sf != 1:
@@ -293,8 +293,8 @@ def train(hyp):
             if ni < 1:
                 f = 'train_batch%g.jpg' % i  # filename
                 res = plot_images(images=imgs, targets=targets, paths=paths, fname=f)
-                # if tb_writer:
-                    # tb_writer.add_image(f, res, dataformats='HWC', global_step=epoch)
+                if tb_writer:
+                    tb_writer.add_image(f, res, dataformats='HWC', global_step=epoch)
                     # tb_writer.add_graph(model, imgs)  # add model to tensorboard
 
             # end batch ------------------------------------------------------------------------------------------------
@@ -397,8 +397,8 @@ if __name__ == '__main__':
     opt = parser.parse_args()
     opt.weights = last if opt.resume else opt.weights
     check_git_status()
-    opt.cfg = list(glob.iglob('./**/' + opt.cfg, recursive=True))[0]  # find file
-    # opt.data = list(glob.iglob('./**/' + opt.data, recursive=True))[0]  # find file
+    opt.cfg = check_file(opt.cfg)  # check file
+    opt.data = check_file(opt.data)  # check file
     print(opt)
     opt.img_size.extend([opt.img_size[-1]] * (3 - len(opt.img_size)))  # extend to 3 sizes (min, max, test)
     device = torch_utils.select_device(opt.device, apex=mixed_precision, batch_size=opt.batch_size)
